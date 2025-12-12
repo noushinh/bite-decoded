@@ -2,7 +2,7 @@
 🌱 Bite Decoded
 Your favorite cravings, decoded by data.
 
-View Live Demo (https://bitedecoded.netlify.app/))
+View Live Demo (https://bitedecoded.netlify.app/)
 
 📖 About the Project
 Bite Decoded is a responsive web project designed to "deconstruct" the nutritional facts behind popular fast food and comfort meals. Rather than boring spreadsheets, this project visualizes macros and ingredients using a playful "fast food" aesthetic combined with clean data typography.
@@ -28,7 +28,7 @@ Version Control: Git & GitHub
 
 
 
-Created by Noushin Haque - feel free to reach out!
+Created by Noushin Haque
 
 www.linkedin.com/in/noushinhaque
 =======
