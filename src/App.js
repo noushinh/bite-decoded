@@ -5,6 +5,7 @@ import Map from './components/Map';
 import sampleLocations from './data/locations';
 import { Routes, Route } from 'react-router-dom';
 import WhatsInYourFood from './pages/WhatsInYourFood';
+import MenuAnalysis from './pages/MenuAnalysis';
 
 function MainLayout() {
   const [locations] = useState(sampleLocations);
@@ -33,6 +34,7 @@ function App() {
     <Routes>
       <Route path="/" element={<MainLayout />} />
       <Route path="/whats-in-your-food" element={<WhatsInYourFood />} />
+      <Route path="/menu-analysis/:id" element={<MenuAnalysis />} />
     </Routes>
   );
 }
