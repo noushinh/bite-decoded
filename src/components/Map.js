@@ -92,7 +92,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
 
                     (mapLocations && mapLocations.locations || []).forEach((loc) => {
                       try {
-                        const marker = L.marker([loc.lat, loc.lng], { title: loc.country });
+                        const marker = L.circleMarker([loc.lat, loc.lng], {radius:4, fillColor:'#2a9df4', color:'#ffffff', weight:1, fillOpacity:0.9});
 
                         const popupContent = `
                           <div style="min-width:250px;padding:10px;font-family: Arial, sans-serif;">
@@ -100,10 +100,10 @@ export default function Map({ locations = [], selectedLocation = null }) {
                             <div><strong>Total Items:</strong> ${loc.totalItems}</div>
                             <div style="margin-top:8px"><strong>Categories:</strong>
                               <ul style="margin:6px 0 0 18px;padding:0;">
-                                <li>🍗 Chicken: ${loc.categories && loc.categories.Chicken || 0} items</li>
-                                <li>🥐 Breakfast: ${loc.categories && loc.categories.Breakfast || 0} items</li>
-                                <li>🍔 Burgers: ${loc.categories && loc.categories.Burger || 0} items</li>
-                                <li>🥤 Beverages: ${loc.categories && loc.categories.Beverages || 0} items</li>
+                                <li>🍗 Chicken: ${(loc.categories && loc.categories.Chicken) || 0} items</li>
+                                <li>🥐 Breakfast: ${(loc.categories && loc.categories.Breakfast) || 0} items</li>
+                                <li>🍔 Burgers: ${(loc.categories && loc.categories.Burger) || 0} items</li>
+                                <li>🥤 Beverages: ${(loc.categories && loc.categories.Beverages) || 0} items</li>
                               </ul>
                             </div>
                             <div style="margin-top:8px">
@@ -162,7 +162,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
       initLeaflet();
 
       return () => { cancelled = true; };
-    }, []);
+    }, [navigate]);
 
   // Marker & popup effect: recreate markers whenever `locations` changes.
   useEffect(() => {
@@ -211,7 +211,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
           icon = L.divIcon({ className: 'custom-marker-icon', html, iconSize: [36, 36], iconAnchor: [18, 36] });
         } else {
           // simple colored circle fallback
-          const color = '#ff6b6b';
+          const color = '#2a9df4';
           const html = `<div class="marker-circle" style="background:${color}"></div>`;
           icon = L.divIcon({ className: 'custom-marker-icon', html, iconSize: [16, 16], iconAnchor: [8, 8] });
         }
