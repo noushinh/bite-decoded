@@ -244,7 +244,21 @@ export default function Map({ locations = [], selectedLocation = null }) {
             const btn = document.getElementById(popupId);
             if (btn) {
               const handler = () => {
-                try { navigate(`/menu-analysis/${loc.id}`); } catch (e) { /* ignore */ }
+                try {
+                  // derive a country analysis id from the marker's country field (fallback to id)
+                  const name = (loc.country || loc.title || loc.id || '').toString().toLowerCase();
+                  let countryId = null;
+                  if (name.includes('india')) countryId = 'india';
+                  else if (name.includes('united') && name.includes('kingdom')) countryId = 'uk';
+                  else if (name.includes('uk') || name === 'united kingdom') countryId = 'uk';
+                  else if (name.includes('usa') || name.includes('united states') || name.includes('united states of america') || name.includes('us')) countryId = 'usa';
+                  else if (name.includes('mexico')) countryId = 'mexico';
+                  else if (name.includes('south africa') || name.includes('cape town')) countryId = 'south-africa';
+
+                  // If we couldn't resolve a country analysis, fall back to the marker id
+                  const target = countryId || loc.id;
+                  navigate(`/menu-analysis/${target}`);
+                } catch (e) { /* ignore navigation errors */ }
               };
               btn.addEventListener('click', handler, { once: true });
             }
