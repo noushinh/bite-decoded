@@ -1,3 +1,4 @@
+import { BarChart, GroupedMacroChart } from '../components/Charts';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import usaAnalysis from '../data/usa_analysis.json';
@@ -46,6 +47,25 @@ function MenuAnalysis() {
         <h1>{id.toLowerCase() === 'usa' ? `USA - McDonald's Menu Analysis` : `${analysis.country} Menu Analysis`}</h1>
         <p className="total-items">Analyzing {analysis.totalItems} menu items across {categoryCount} categories</p>
       </header>
+
+        {/* Top charts: Average Calories (yellow) then Average Macronutrients (colorful) */}
+        <div className="top-charts">
+          <div className="chart-card full-width">
+            <h2 className="chart-title">Average Calories by Category</h2>
+            <p className="chart-sub">Compare the average calorie content across different food categories</p>
+            {/* prepare avgCalories array */}
+            {(() => {
+              const avgCalories = Object.entries(analysis.categories || {}).map(([k, v]) => ({ label: k, value: Math.round(v.avgCalories || 0) }));
+              return <BarChart items={avgCalories} color="#FFC72C" width={900} height={300} />;
+            })()}
+          </div>
+
+          <div className="chart-card full-width">
+            <h2 className="chart-title">Average Macronutrients by Category</h2>
+            <p className="chart-sub">Protein, carbohydrates, and fat content across categories</p>
+            <GroupedMacroChart categories={analysis.categories || {}} height={260} />
+          </div>
+        </div>
 
       <div className="category-sections">
         {Object.entries(analysis.categories).map(([category, data]) => {
