@@ -75,6 +75,44 @@ function PieChart({ categories }) {
   );
 }
 
+// Simple bar chart component for top items
+function BarChart({ items, maxCalories }) {
+  const barHeight = 20;
+  const barGap = 5;
+  const labelWidth = 200;
+  const chartWidth = 300;
+  const chartHeight = items.length * (barHeight + barGap);
+
+  return (
+    <svg width={labelWidth + chartWidth + 50} height={chartHeight + 40} className="bar-chart">
+      {items.map((item, index) => {
+        const y = index * (barHeight + barGap) + 20;
+        const barWidth = (item.calories / maxCalories) * chartWidth;
+        const truncatedName = item.item.length > 25 ? item.item.substring(0, 22) + '...' : item.item;
+
+        return (
+          <g key={index}>
+            <text x={0} y={y + barHeight / 2 + 5} className="bar-label" title={item.item}>
+              {truncatedName}
+            </text>
+            <rect
+              x={labelWidth}
+              y={y}
+              width={barWidth}
+              height={barHeight}
+              fill="#FFC72C"
+              className="bar-rect"
+            />
+            <text x={labelWidth + barWidth + 5} y={y + barHeight / 2 + 5} className="bar-value">
+              {item.calories}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 function MenuAnalysis() {
   const { id } = useParams();
   const navigate = useNavigate();
