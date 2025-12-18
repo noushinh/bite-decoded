@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import usaAnalysis from '../data/usa_analysis.json';
+import ukAnalysis from '../data/uk_analysis.json';
+import indiaAnalysis from '../data/india_analysis.json';
 import './MenuAnalysis.css'; // We'll create this for styling
+
+const analysisData = {
+  usa: usaAnalysis,
+  uk: ukAnalysis,
+  india: indiaAnalysis,
+};
 
 function MenuAnalysis() {
   const { id } = useParams();
@@ -10,11 +19,10 @@ function MenuAnalysis() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadAnalysis = async () => {
+    const loadAnalysis = () => {
       try {
-        const response = await fetch(`/data/${id}_analysis.json`);
-        if (!response.ok) throw new Error('Failed to load analysis');
-        const data = await response.json();
+        const data = analysisData[id.toLowerCase()];
+        if (!data) throw new Error('Analysis data not found for this country');
         setAnalysis(data);
       } catch (err) {
         setError(err.message);
