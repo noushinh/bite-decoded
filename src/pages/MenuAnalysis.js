@@ -4,7 +4,6 @@ import usaAnalysis from '../data/usa_analysis.json';
 import ukAnalysis from '../data/uk_analysis.json';
 import indiaAnalysis from '../data/india_analysis.json';
 import './MenuAnalysis.css'; // We'll create this for styling
-import Charts from '../components/Charts';
 
 const analysisData = {
   usa: usaAnalysis,
@@ -47,8 +46,6 @@ function MenuAnalysis() {
         <h1>{id.toLowerCase() === 'usa' ? `USA - McDonald's Menu Analysis` : `${analysis.country} Menu Analysis`}</h1>
         <p className="total-items">Analyzing {analysis.totalItems} menu items across {categoryCount} categories</p>
       </header>
-
-      <Charts analysis={analysis} />
 
       <div className="category-sections">
         {Object.entries(analysis.categories).map(([category, data]) => {
