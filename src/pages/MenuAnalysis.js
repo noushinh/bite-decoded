@@ -3,115 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import usaAnalysis from '../data/usa_analysis.json';
 import ukAnalysis from '../data/uk_analysis.json';
 import indiaAnalysis from '../data/india_analysis.json';
-import mapLocations from '../data/processed/map_locations.json';
 import './MenuAnalysis.css'; // We'll create this for styling
+import Charts from '../components/Charts';
 
 const analysisData = {
   usa: usaAnalysis,
   uk: ukAnalysis,
   india: indiaAnalysis,
 };
-
-// Simple pie chart component for category distribution
-function PieChart({ categories }) {
-  const radius = 60;
-  const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
-
-  const total = Object.values(categories).reduce((sum, count) => sum + count, 0);
-  if (total === 0) return null;
-
-  let cumulative = 0;
-  const slices = Object.entries(categories).map(([category, count], index) => {
-    const percentage = count / total;
-    const startAngle = cumulative * 2 * Math.PI;
-    cumulative += percentage;
-    const endAngle = cumulative * 2 * Math.PI;
-
-    const x1 = Math.cos(startAngle - Math.PI / 2) * radius;
-    const y1 = Math.sin(startAngle - Math.PI / 2) * radius;
-    const x2 = Math.cos(endAngle - Math.PI / 2) * radius;
-    const y2 = Math.sin(endAngle - Math.PI / 2) * radius;
-
-    const largeArcFlag = percentage > 0.5 ? 1 : 0;
-
-    const pathData = [
-      `M 0 0`,
-      `L ${x1} ${y1}`,
-      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-      `Z`
-    ].join(' ');
-
-    return {
-      path: pathData,
-      color: colors[index % colors.length],
-      label: category,
-      count: count,
-      percentage: Math.round(percentage * 100)
-    };
-  });
-
-  return (
-    <div className="pie-chart-container">
-      <svg width="140" height="140" viewBox="-70 -70 140 140" className="pie-chart">
-        {slices.map((slice, index) => (
-          <path
-            key={index}
-            d={slice.path}
-            fill={slice.color}
-            stroke="#fff"
-            strokeWidth="1"
-          />
-        ))}
-      </svg>
-      <div className="pie-legend">
-        {slices.map((slice, index) => (
-          <div key={index} className="legend-item">
-            <div className="legend-color" style={{ backgroundColor: slice.color }}></div>
-            <span className="legend-text">{slice.label}: {slice.count} ({slice.percentage}%)</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// Simple bar chart component for top items
-function BarChart({ items, maxCalories }) {
-  const barHeight = 20;
-  const barGap = 5;
-  const labelWidth = 200;
-  const chartWidth = 300;
-  const chartHeight = items.length * (barHeight + barGap);
-
-  return (
-    <svg width={labelWidth + chartWidth + 50} height={chartHeight + 40} className="bar-chart">
-      {items.map((item, index) => {
-        const y = index * (barHeight + barGap) + 20;
-        const barWidth = (item.calories / maxCalories) * chartWidth;
-        const truncatedName = item.item.length > 25 ? item.item.substring(0, 22) + '...' : item.item;
-
-        return (
-          <g key={index}>
-            <text x={0} y={y + barHeight / 2 + 5} className="bar-label" title={item.item}>
-              {truncatedName}
-            </text>
-            <rect
-              x={labelWidth}
-              y={y}
-              width={barWidth}
-              height={barHeight}
-              fill="#FFC72C"
-              className="bar-rect"
-            />
-            <text x={labelWidth + barWidth + 5} y={y + barHeight / 2 + 5} className="bar-value">
-              {item.calories}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
 
 function MenuAnalysis() {
   const { id } = useParams();
@@ -136,77 +35,86 @@ function MenuAnalysis() {
     loadAnalysis();
   }, [id]);
 
-  const getCategories = () => {
-    const loc = mapLocations.locations.find(l => l.id === id.toLowerCase());
-    return loc ? loc.categories : {};
-  };
-
   if (loading) return <div className="loading">Loading analysis...</div>;
   if (error) return <div className="error">Error: {error}</div>;
   if (!analysis) return <div className="error">No analysis data found</div>;
 
+  const categoryCount = Object.keys(analysis.categories || {}).length;
   return (
     <div className="menu-analysis">
-      <header className="analysis-header">
+      <header className="analysis-header big">
         <button onClick={() => navigate('/')} className="back-button">← Back to Map</button>
-        <h1>{analysis.country} Menu Analysis</h1>
-        <p className="total-items">Total Items Analyzed: {analysis.totalItems}</p>
-        <div className="category-overview">
-          <h2>Category Distribution</h2>
-          <PieChart categories={getCategories()} />
-        </div>
+        <h1>{id.toLowerCase() === 'usa' ? `USA - McDonald's Menu Analysis` : `${analysis.country} Menu Analysis`}</h1>
+        <p className="total-items">Analyzing {analysis.totalItems} menu items across {categoryCount} categories</p>
       </header>
 
-      <div className="categories">
-        {Object.entries(analysis.categories).map(([category, data]) => (
-          <div key={category} className="category-card">
-            <h2>{category}</h2>
-            <div className="stats">
-              <div className="stat">
-                <span className="label">Items:</span>
-                <span className="value">{data.itemCount}</span>
-              </div>
-              <div className="stat">
-                <span className="label">Avg Calories:</span>
-                <span className="value">{data.avgCalories.toFixed(1)}</span>
-              </div>
-              <div className="stat">
-                <span className="label">Range:</span>
-                <span className="value">{data.minCalories} - {data.maxCalories}</span>
-              </div>
-              <div className="stat">
-                <span className="label">Avg Protein:</span>
-                <span className="value">{data.avgProtein.toFixed(1)}g</span>
-              </div>
-              <div className="stat">
-                <span className="label">Avg Carbs:</span>
-                <span className="value">{data.avgCarbs.toFixed(1)}g</span>
-              </div>
-              <div className="stat">
-                <span className="label">Avg Fat:</span>
-                <span className="value">{data.avgFat.toFixed(1)}g</span>
-              </div>
-            </div>
+      <Charts analysis={analysis} />
 
-            <h3>Top 5 Items by Calories</h3>
-            <div className="top-items-chart">
-              <BarChart items={data.topItems} maxCalories={Math.max(...data.topItems.map(item => item.calories))} />
-            </div>
-            <div className="top-items">
-              {data.topItems.map((item, index) => (
-                <div key={index} className="top-item">
-                  <div className="item-name">{item.item}</div>
-                  <div className="item-nutrition">
-                    <span>{item.calories} cal</span>
-                    <span>{item.protein}g protein</span>
-                    <span>{item.carbs}g carbs</span>
-                    <span>{item.fat}g fat</span>
+      <div className="category-sections">
+        {Object.entries(analysis.categories).map(([category, data]) => {
+          const highest = (data.topItems && data.topItems[0]) || null;
+          const lowest = (data.topItems && data.topItems[data.topItems.length - 1]) || null;
+          return (
+            <section key={category} className="category-section">
+              <h2 className="section-title">{category}</h2>
+              <div className="category-meta">{data.itemCount} items | Avg: {data.avgCalories.toFixed(2)} kcal</div>
+
+              <div className="hl-grid">
+                {highest && (
+                  <div className="hl-card high">
+                    <div className="hl-label">🔥 Highest Calorie</div>
+                    <div className="hl-name">{highest.item}</div>
+                    <div className="hl-kcal">{highest.calories} kcal</div>
+                    <div className="hl-nutrients">
+                      <div>Protein: {highest.protein}g</div>
+                      <div>Carbs: {highest.carbs}g</div>
+                      <div>Fat: {highest.fat}g</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                )}
+                {lowest && (
+                  <div className="hl-card low">
+                    <div className="hl-label">💚 Lowest Calorie</div>
+                    <div className="hl-name">{lowest.item}</div>
+                    <div className="hl-kcal">{lowest.calories} kcal</div>
+                    <div className="hl-nutrients">
+                      <div>Protein: {lowest.protein}g</div>
+                      <div>Carbs: {lowest.carbs}g</div>
+                      <div>Fat: {lowest.fat}g</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="table-card">
+                <table className="items-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Item Name</th>
+                      <th>Calories</th>
+                      <th>Protein (g)</th>
+                      <th>Carbs (g)</th>
+                      <th>Fat (g)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(data.topItems || []).slice(0, 10).map((it, idx) => (
+                      <tr key={idx}>
+                        <td>{idx + 1}</td>
+                        <td className="item-cell">{it.item}</td>
+                        <td className="kcal-cell">{it.calories}</td>
+                        <td>{it.protein}</td>
+                        <td>{it.carbs}</td>
+                        <td>{it.fat}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

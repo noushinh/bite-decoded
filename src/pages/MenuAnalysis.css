@@ -85,33 +85,10 @@
   margin-bottom: 15px;
 }
 
-.top-items-chart {
-  margin-bottom: 20px;
-  overflow-x: auto;
-}
-
-.bar-chart {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  font-size: 12px;
-}
-
-.bar-label {
-  fill: #333;
-  text-anchor: end;
-  font-weight: 500;
-}
-
-.bar-rect {
-  transition: fill 0.2s ease;
-}
-
-.bar-rect:hover {
-  fill: #e6b229;
-}
-
-.bar-value {
-  fill: #666;
-  font-weight: 600;
+.top-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .top-item {
@@ -134,45 +111,60 @@
   color: #666;
 }
 
-.category-overview {
-  margin-top: 20px;
+.loading, .error {
   text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
 }
 
-.category-overview h2 {
-  color: #DA291C;
-  margin-bottom: 15px;
+.error {
+  color: #d9534f;
 }
 
-.pie-chart-container {
-  display: inline-block;
-  text-align: left;
-}
+/* Charts styling */
+.charts-grid { display: grid; grid-template-columns: 260px 1fr; gap: 18px; align-items: start; margin-bottom: 20px; }
+.chart-card { background:#fff; padding:14px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+.donut-chart { display:block; margin: 0 auto; }
+.bar-chart { padding: 6px 0; }
+.bar-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.bar-label { flex: 0 0 160px; font-size:0.9rem; color:#333; }
+.bar-track { flex:1 1 auto; background:#f3f3f3; border-radius:6px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+.bar-value { width:60px; text-align:right; font-weight:700; color:#333; }
 
-.pie-chart {
-  display: block;
-  margin: 0 auto 10px;
-}
+@media (max-width:900px){ .charts-grid{ grid-template-columns: 1fr; } .bar-label{ flex-basis:120px; } }
 
-.pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
+/* Category sections and highlight cards */
+.category-sections { display:flex; flex-direction:column; gap:18px; }
+.category-section { background:#fff; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+.section-title { color:#DA291C; margin:0 0 6px 0; font-size:1.4rem; }
+.category-meta { color:#666; margin-bottom:12px; }
+.hl-grid { display:flex; gap:12px; margin-bottom:14px; }
+.hl-card { flex:1; padding:12px; border-radius:8px; background:#fbfbfb; position:relative; }
+.hl-card.high { border-left:6px solid #DA291C; }
+.hl-card.low { border-left:6px solid #6cc070; }
+.hl-label { font-weight:700; color:#666; margin-bottom:8px; }
+.hl-name { font-weight:700; font-size:1rem; margin-bottom:6px; }
+.hl-kcal { color:#DA291C; font-weight:800; margin-bottom:8px; }
+.hl-nutrients { color:#666; font-size:0.95rem; }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.table-card { margin-top:8px; overflow:auto; }
+.items-table { width:100%; border-collapse:collapse; }
+.items-table thead th { text-align:left; padding:12px 8px; border-bottom:3px solid #DA291C; color:#333; }
+.items-table tbody td { padding:10px 8px; border-bottom:1px solid #eee; color:#444; }
+.items-table .item-cell { max-width:520px; }
+.items-table .kcal-cell { color:#DA291C; font-weight:700; }
 
-.legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-}
+/* Grouped macro chart */
+.grouped-macro { display:flex; flex-direction:column; gap:18px; }
+.group-row { display:flex; align-items:flex-end; gap:12px; }
+.group-label { width:120px; color:#666; }
+.group-bars { display:flex; gap:8px; align-items:flex-end; height:160px; }
+.group-bar { width:48px; display:flex; flex-direction:column; align-items:center; }
+.group-bar .fill { width:100%; border-radius:6px 6px 0 0; }
+.group-bar .group-caption { font-size:0.75rem; color:#666; margin-top:6px; text-align:center; }
+.group-bar .fill.carbs { background:#6cc070; }
+.group-bar .fill.fat { background:#FFC72C; }
+.group-bar .fill.protein { background:#8e7cf0; }
 
-.legend-text {
-  font-size: 0.9rem;
-  color: #666;
-}
+@media (max-width:900px){ .group-label{ width:90px; } .group-bar{ width:36px } }
