@@ -388,6 +388,10 @@
   .leaflet-popup-content .map-popup{ font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#222; }
   .leaflet-popup-content .map-popup strong{ display:block; margin-bottom:6px; font-weight:700; }
 
+  /* Country marker (bigger pin) */
+  .leaflet-container .country-pin { width: 20px; height: 20px; border-radius: 50%; background: #DA291C; border: 3px solid #fff; box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
+  .leaflet-container .country-pin::after { content: ''; position: absolute; width: 6px; height: 6px; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(255,255,255,0.95); }
+
   /* Responsive: stack panels on narrow screens */
   @media (max-width:720px){
     .panels{ flex-direction:column; }
