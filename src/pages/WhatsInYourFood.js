@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react'; // Removed useRef from here
 import foodies from '../data/foodies_parsed';
 
 const EXTRA_FIELDS = [
