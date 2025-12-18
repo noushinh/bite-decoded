@@ -92,7 +92,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
 
                     ((mapLocations && mapLocations.locations) || []).forEach((loc) => {
                       try {
-                        const marker = L.circleMarker([loc.lat, loc.lng], {radius:4, fillColor:'#2a9df4', color:'#ffffff', weight:1, fillOpacity:0.9});
+                        const marker = L.marker([loc.lat, loc.lng]);
 
                         const popupContent = `
                           <div style="min-width:250px;padding:10px;font-family: Arial, sans-serif;">
@@ -217,10 +217,8 @@ export default function Map({ locations = [], selectedLocation = null }) {
           const html = `<div class="marker-img-wrap"><img src="${src}" alt="${brand}" /></div>`;
           icon = L.divIcon({ className: 'custom-marker-icon', html, iconSize: [36, 36], iconAnchor: [18, 36] });
         } else {
-          // simple colored circle fallback
-          const color = '#2a9df4';
-          const html = `<div class="marker-circle" style="background:${color}"></div>`;
-          icon = L.divIcon({ className: 'custom-marker-icon', html, iconSize: [16, 16], iconAnchor: [8, 8] });
+          // use default marker icon
+          icon = null;
         }
 
         const marker = L.marker([lat, lng], { icon });
