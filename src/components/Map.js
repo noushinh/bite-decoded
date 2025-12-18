@@ -32,12 +32,30 @@ export default function Map({ locations = [], selectedLocation = null }) {
 
         try {
           const map = L.map(container, { scrollWheelZoom: true }).setView([20, 0], 2);
-          // Use CartoDB Positron (light) tiles for a clean, soft basemap
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          }).addTo(map);
+
+          // Prefer Mapbox tiles when a runtime token is available (injected into index.html as
+          // window.__MAPBOX_TOKEN__). Fall back to CartoDB Positron tiles for development/offline.
+          const token = (typeof window !== 'undefined' && window.__MAPBOX_TOKEN__) ? String(window.__MAPBOX_TOKEN__).trim() : '';
+          const useMapbox = token && token !== 'REPLACE_WITH_MAPBOX_TOKEN';
+
+          if (useMapbox) {
+            // Mapbox raster tiles via Mapbox Styles API (works with Leaflet tileLayer)
+            // Use a neutral/light style; hosting env should supply a public Mapbox token at runtime.
+            const styleId = 'mapbox/light-v10';
+            L.tileLayer(`https://api.mapbox.com/styles/v1/${styleId}/tiles/{z}/{x}/{y}?access_token=${token}`, {
+              maxZoom: 19,
+              tileSize: 512,
+              zoomOffset: -1,
+              attribution: '© <a href="https://www.mapbox.com/about/maps">Mapbox</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+          } else {
+            // CartoDB Positron (light) tiles for a clean, soft basemap when Mapbox token is not provided.
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+              maxZoom: 19,
+              subdomains: 'abcd',
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            }).addTo(map);
+          }
 
           mapRef.current = map;
 
