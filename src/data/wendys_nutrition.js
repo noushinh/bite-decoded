@@ -1,0 +1,60 @@
+// Wendy's nutrition data (sample fries entries)
+const wendysNutrition = [
+  {
+    restaurant: "Wendy's",
+    country: 'USA',
+    item: 'Small Fries',
+    url: 'https://www.wendys.com/en-us/menu/sides',
+    calories: 320,
+    totalFat_g: 15,
+    totalCarbs_g: 42,
+    protein_g: 4,
+    sodium_mg: 260,
+  },
+  {
+    restaurant: "Wendy's",
+    country: 'UK',
+    item: 'Fries (regular)',
+    url: 'https://www.wendys.com/en-gb/menu',
+    calories: 340,
+    totalFat_g: 16.5,
+    totalCarbs_g: 44,
+    protein_g: 4.2,
+    sodium_mg: 290,
+  },
+  {
+    restaurant: "Wendy's",
+    country: 'South Africa',
+    item: 'Fries (medium)',
+    url: 'https://www.wendys.co.za/menu',
+    calories: null,
+    totalFat_g: null,
+    totalCarbs_g: null,
+    protein_g: null,
+    sodium_mg: null,
+  },
+  {
+    restaurant: "Wendy's",
+    country: 'India',
+    item: 'Fries (medium)',
+    url: 'https://www.wendysindia.com/menu',
+    calories: null,
+    totalFat_g: null,
+    totalCarbs_g: null,
+    protein_g: null,
+    sodium_mg: null,
+  },
+  {
+    restaurant: "Wendy's",
+    country: 'Mexico',
+    item: 'Medium French Fries',
+    url: 'https://www.fatsecret.com.mx/calor%C3%ADas-nutrici%C3%B3n/wendys/papas-fritas-(mediana)/1-porci%C3%B3n',
+    calories: 410,
+    totalFat_g: 20,
+    totalCarbs_g: 52,
+    protein_g: 5,
+    sodium_mg: 880,
+  }
+];
+
+export default wendysNutrition;

@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import mcdNutrition from '../data/mcd_nutrition';
+import bkNutrition from '../data/bk_nutrition';
+import wendysNutrition from '../data/wendys_nutrition';
+import kfcNutrition from '../data/kfc_nutrition';
 
 export default function Sidebar({ locations = [], onSelect }) {
   const [active, setActive] = useState('all');
@@ -21,23 +25,64 @@ export default function Sidebar({ locations = [], onSelect }) {
     if (typeof onSelect === 'function') onSelect(id);
   };
 
-  // Nutrition data for a serving of fries for each brand (sample values)
-  const nutrition = {
-    mcd: { name: "McDonald's Fries (Medium)", calories: 340, fat: '16g', carbs: '44g', protein: '4g', sodium: '230mg' },
-    bk: { name: 'Burger King Fries (Medium)', calories: 380, fat: '18g', carbs: '48g', protein: '5g', sodium: '300mg' },
-    wendys: { name: "Wendy's Fries (Medium)", calories: 420, fat: '19g', carbs: '54g', protein: '5g', sodium: '520mg' },
-    kfc: { name: 'KFC Fries (Medium)', calories: 360, fat: '17g', carbs: '46g', protein: '4g', sodium: '410mg' },
+  
+
+  // Helper to build per-country map from dataset
+  const buildCountryMap = (dataset) => {
+    const map = {};
+    try {
+      const entries = Array.isArray(dataset) ? dataset : [];
+      entries.forEach((e) => {
+        const country = e.country || e.country_code || 'Unknown';
+        map[country] = {
+          calories: e.calories,
+          fat: e.totalFat_g != null ? `${e.totalFat_g}g` : undefined,
+          carbs: e.totalCarbs_g != null ? `${e.totalCarbs_g}g` : undefined,
+          protein: e.protein_g != null ? `${e.protein_g}g` : undefined,
+          sodium: e.sodium_mg != null ? `${e.sodium_mg}mg` : undefined,
+        };
+      });
+    } catch (err) {
+      // ignore
+    }
+    return map;
   };
 
-  // Per-country mock nutrition for McDonald's (randomized-ish demo values)
   const nutritionByCountry = {
-    mcd: {
-      'USA': { calories: 340, fat: '16g', carbs: '44g', protein: '4g', sodium: '230mg' },
-      'UK': { calories: 320, fat: '15g', carbs: '42g', protein: '4g', sodium: '210mg' },
-      'South Africa': { calories: 360, fat: '17g', carbs: '46g', protein: '4g', sodium: '260mg' },
-      'India': { calories: 300, fat: '14g', carbs: '40g', protein: '3g', sodium: '200mg' },
-      'Mexico': { calories: 380, fat: '18g', carbs: '48g', protein: '5g', sodium: '310mg' },
+    mcd: buildCountryMap(mcdNutrition),
+    bk: buildCountryMap(bkNutrition),
+    wendys: buildCountryMap(wendysNutrition),
+    kfc: buildCountryMap(kfcNutrition),
+  };
+
+  // Populate single-brand overview values (fall back to static values if dataset missing)
+  const deriveOverview = (dataset, fallback) => {
+    try {
+      const entries = Array.isArray(dataset) ? dataset : [];
+      const fries = entries.find(e => /fries|fry|chips|papas|potato/i.test(e.item) && e.country && /USA|United States/i.test(e.country))
+        || entries.find(e => /fries|fry|chips|papas|potato/i.test(e.item))
+        || entries[0];
+      if (fries) {
+        return {
+          name: `${fries.restaurant} — ${fries.item}`,
+          calories: fries.calories,
+          fat: fries.totalFat_g != null ? `${fries.totalFat_g}g` : undefined,
+          carbs: fries.totalCarbs_g != null ? `${fries.totalCarbs_g}g` : undefined,
+          protein: fries.protein_g != null ? `${fries.protein_g}g` : undefined,
+          sodium: fries.sodium_mg != null ? `${fries.sodium_mg}mg` : undefined,
+        };
+      }
+    } catch (err) {
+      // ignore
     }
+    return fallback;
+  };
+
+  const nutrition = {
+    mcd: deriveOverview(mcdNutrition, { name: "McDonald's Fries (Medium)", calories: 340, fat: '16g', carbs: '44g', protein: '4g', sodium: '230mg' }),
+    bk: deriveOverview(bkNutrition, { name: 'Burger King Fries (Medium)', calories: 380, fat: '18g', carbs: '48g', protein: '5g', sodium: '300mg' }),
+    wendys: deriveOverview(wendysNutrition, { name: "Wendy's Fries (Medium)", calories: 420, fat: '19g', carbs: '54g', protein: '5g', sodium: '520mg' }),
+    kfc: deriveOverview(kfcNutrition, { name: 'KFC Fries (Medium)', calories: 299, fat: '14g', carbs: '37g', protein: '7g', sodium: '200mg' }),
   };
 
   // Small inline visualization component. Renders donut ring charts (macronutrient breakdown) for each country.
@@ -83,8 +128,12 @@ export default function Sidebar({ locations = [], onSelect }) {
                 <circle r={radius} fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth={stroke} />
                 {segments.map((s, i) => {
                   const segLen = (s.value / total) * circumference;
-                  const dashArray = `${segLen} ${circumference - segLen}`;
+                  // small visible gap (in px) to avoid visual overlap/antialiasing between segments
+                  const gap = 1.5;
+                  const visibleLen = Math.max(0, segLen - gap);
+                  const dashArray = `${visibleLen} ${circumference - visibleLen}`;
                   const dashOffset = -cumulative;
+                  // advance cumulative by the true segment length so subsequent segments keep correct positions
                   cumulative += segLen;
                   return (
                     <circle
@@ -167,6 +216,7 @@ export default function Sidebar({ locations = [], onSelect }) {
             onClick={() => navigate('/whats-in-your-food')}
             title="Deconstruct It"
           >Decode Your Dish 🔍</button>
+          <span className="nutri-label">Nutritional Breakdown</span>
         </section>
 
         <div style={{ height: 12 }} />
@@ -233,30 +283,69 @@ export default function Sidebar({ locations = [], onSelect }) {
         </section>
         <div style={{ height: 12 }} />
 
-        {/* Receipt-like nutrition panel. For McDonald's, show donuts to the left of the receipt (vertical column). */}
-        {active === 'mcd' ? (
+        {/* Receipt-like nutrition panel. Show donuts + receipt for any selected brand with data. */}
+        {(active && active !== 'all' && nutritionByCountry[active] && Object.keys(nutritionByCountry[active]).length > 0) ? (
           <section aria-label="Nutrition receipt and visualizations" className="receipt-with-donuts">
             <div className="donut-column-wrapper">
-              <NutritionViz byCountry={(nutritionByCountry && nutritionByCountry.mcd) || {}} vertical />
+              <NutritionViz
+                byCountry={(() => {
+                  const map = { ...(nutritionByCountry[active] || {}) };
+                  if (active === 'wendys') {
+                    // remove India and South Africa from the donuts only (existing behaviour)
+                    Object.keys(map).forEach((k) => {
+                      if (k && (k.toLowerCase() === 'india' || k.toLowerCase() === 'south africa')) {
+                        delete map[k];
+                      }
+                    });
+                  } else if (active === 'kfc') {
+                    // remove South Africa from KFC donuts/visualizations
+                    Object.keys(map).forEach((k) => {
+                      if (k && k.toLowerCase() === 'south africa') {
+                        delete map[k];
+                      }
+                    });
+                  }
+                  return map;
+                })()}
+                vertical
+              />
             </div>
 
             <div className="receipt">
               <div key={active ? active : 'idle'} className={`receipt-sheet ${active && active !== 'all' ? 'printing' : ''}`}>
-                <div>
-                  <div className="rcpt-store">FOODIES & CO.</div>
-                  <div className="rcpt-title">McDonald's Fries — Medium</div>
-                  {Object.entries((nutritionByCountry && nutritionByCountry.mcd) || {}).map(([country, vals]) => (
-                    <div className="country-block" key={country}>
-                      <div className="country-name">{country}</div>
-                      <div className="rcpt-line"><span>Calories</span><strong>{vals.calories} kcal</strong></div>
-                      <div className="rcpt-line"><span>Fat</span><strong>{vals.fat}</strong></div>
-                      <div className="rcpt-line"><span>Carbs</span><strong>{vals.carbs}</strong></div>
-                      <div className="rcpt-line"><span>Protein</span><strong>{vals.protein}</strong></div>
-                      <div className="rcpt-line"><span>Sodium</span><strong>{vals.sodium}</strong></div>
+                {(() => {
+                  const brandLabel = (brands.find(b => b.id === active) || {}).label || active;
+                  return (
+                    <div>
+                      <div className="rcpt-store">FOODIES & CO.</div>
+                      <div className="rcpt-title">{brandLabel} Fries — Medium</div>
+                      {(() => {
+                        let entries = Object.entries(nutritionByCountry[active] || {});
+                        // For KFC, remove South Africa from the printed receipt list as well
+                        if (active === 'kfc') {
+                          entries = entries.filter(([country]) => !(country && country.toLowerCase() === 'south africa'));
+                        }
+                        const filtered = entries.filter(([country, vals]) => {
+                          if (!vals) return false;
+                          // keep entry if any of the main metrics is present
+                          const any = [vals.calories, vals.fat, vals.carbs, vals.protein, vals.sodium].some(x => x != null && x !== '');
+                          return any;
+                        });
+                        return filtered.map(([country, vals]) => (
+                          <div className="country-block" key={country}>
+                            <div className="country-name">{country}</div>
+                            <div className="rcpt-line"><span>Calories</span><strong>{vals.calories ? `${vals.calories} kcal` : '—'}</strong></div>
+                            <div className="rcpt-line"><span>Fat</span><strong>{vals.fat || '—'}</strong></div>
+                            <div className="rcpt-line"><span>Carbs</span><strong>{vals.carbs || '—'}</strong></div>
+                            <div className="rcpt-line"><span>Protein</span><strong>{vals.protein || '—'}</strong></div>
+                            <div className="rcpt-line"><span>Sodium</span><strong>{vals.sodium || '—'}</strong></div>
+                          </div>
+                        ));
+                      })()}
+                      <div className="rcpt-note">* Values are taken from brand nutrition entries when available.</div>
                     </div>
-                  ))}
-                  <div className="rcpt-note">* Values are approximate and randomized for demo purposes.</div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
           </section>

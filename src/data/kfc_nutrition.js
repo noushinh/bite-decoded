@@ -1,0 +1,60 @@
+// KFC nutrition data (sample fries entries)
+const kfcNutrition = [
+  {
+    restaurant: "KFC",
+    country: 'USA',
+    item: 'Regular Fries',
+    url: 'https://www.kfc.com/menu',
+    calories: 360,
+    totalFat_g: 16.5,
+    totalCarbs_g: 44,
+    protein_g: 4.2,
+    sodium_mg: 280,
+  },
+  {
+    restaurant: "KFC",
+    country: 'UK',
+    item: 'Fries (medium)',
+    url: 'https://www.kfc.co.uk/menu',
+    calories: 340,
+    totalFat_g: 15.5,
+    totalCarbs_g: 41.8,
+    protein_g: 3.9,
+    sodium_mg: 260,
+  },
+  {
+    restaurant: "KFC",
+    country: 'South Africa',
+    item: 'Fries (medium)',
+    url: 'https://www.kfc.co.za/menu',
+    calories: null,
+    totalFat_g: null,
+    totalCarbs_g: null,
+    protein_g: null,
+    sodium_mg: null,
+  },
+  {
+    restaurant: "KFC",
+    country: 'India',
+    item: 'Fries (medium)',
+    url: 'https://www.kfc.co.in/menu',
+    calories: 299,
+    totalFat_g: 14,
+    totalCarbs_g: 37,
+    protein_g: 7,
+    sodium_mg: 200,
+  },
+  {
+    restaurant: "KFC",
+    country: 'Mexico',
+    item: 'Papas (medianas)',
+    url: 'https://www.kfc.com.mx/menu',
+    calories: 352.49,
+    totalFat_g: 16.95,
+    totalCarbs_g: 40.91,
+    protein_g: 9.08,
+    sodium_mg: 636.19,
+  }
+];
+
+export default kfcNutrition;
