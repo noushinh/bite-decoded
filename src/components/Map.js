@@ -90,7 +90,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
                     const countryLayer = L.layerGroup().addTo(map);
                     countryLayerRef.current = countryLayer;
 
-                    (mapLocations && mapLocations.locations || []).forEach((loc) => {
+                    ((mapLocations && mapLocations.locations) || []).forEach((loc) => {
                       try {
                         const marker = L.circleMarker([loc.lat, loc.lng], {radius:4, fillColor:'#2a9df4', color:'#ffffff', weight:1, fillOpacity:0.9});
 
