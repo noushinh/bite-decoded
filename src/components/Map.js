@@ -2,7 +2,6 @@ import React, { useRef, useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
-import mapLocations from '../data/processed/map_locations.json';
 
 // (No dynamic loaders needed — Leaflet is imported from npm)
 
@@ -10,7 +9,6 @@ export default function Map({ locations = [], selectedLocation = null }) {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef(null);
-  const countryLayerRef = useRef(null);
   const navigate = useNavigate();
 
     useEffect(() => {
@@ -85,45 +83,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
                   // Place polygons behind markers but above tiles
                   try { geoJsonLayer.bringToBack && geoJsonLayer.bringToBack(); } catch (e) {}
 
-                  // Add country-level markers (from processed map_locations.json)
-                  try {
-                    const countryLayer = L.layerGroup().addTo(map);
-                    countryLayerRef.current = countryLayer;
-
-                    ((mapLocations && mapLocations.locations) || []).forEach((loc) => {
-                      try {
-                        const marker = L.circleMarker([loc.lat, loc.lng], {radius:4, fillColor:'#2a9df4', color:'#ffffff', weight:1, fillOpacity:0.9});
-
-                        const popupContent = `
-                          <div style="min-width:250px;padding:10px;font-family: Arial, sans-serif;">
-                            <h3 style="margin:0 0 10px 0;color:#DA291C;font-size:1.2rem">${loc.country}</h3>
-                            <div><strong>Total Items:</strong> ${loc.totalItems}</div>
-                            <div style="margin-top:8px"><strong>Categories:</strong>
-                              <ul style="margin:6px 0 0 18px;padding:0;">
-                                <li>🍗 Chicken: ${(loc.categories && loc.categories.Chicken) || 0} items</li>
-                                <li>🥐 Breakfast: ${(loc.categories && loc.categories.Breakfast) || 0} items</li>
-                                <li>🍔 Burgers: ${(loc.categories && loc.categories.Burger) || 0} items</li>
-                                <li>🥤 Beverages: ${(loc.categories && loc.categories.Beverages) || 0} items</li>
-                              </ul>
-                            </div>
-                            <div style="margin-top:8px">
-                              <button id="nav-country-${loc.id}" style="background:#FFC72C;border:none;padding:10px 12px;border-radius:6px;cursor:pointer;font-weight:700">📊 ${loc.country} Menu Full Breakdown - Click Here</button>
-                            </div>
-                          </div>
-                        `;
-
-                        marker.bindPopup(popupContent, { maxWidth: 340 });
-                        marker.on('popupopen', () => {
-                          try {
-                            const btn = document.getElementById(`nav-country-${loc.id}`);
-                            if (btn) btn.addEventListener('click', () => { try { navigate(`/menu-analysis/${loc.id}`); } catch(e){} }, { once: true });
-                          } catch (e) {}
-                        });
-
-                        marker.addTo(countryLayer);
-                      } catch (e) {}
-                    });
-                  } catch (e) {}
+                  // Country-level markers removed per user request
                 } catch (e) {
                   // ignore geojson errors
                 }
