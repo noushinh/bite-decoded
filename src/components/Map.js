@@ -180,7 +180,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
     // Filter out unwanted markers
     const filteredLocations = locations.filter((loc) => {
       const title = loc.title || (loc.country || loc.id);
-      const unwanted = ['downtown diner', 'ciudad tacos', 'riverside grill', 'cape town corner', 'marine drive bites'];
+      const unwanted = ['downtown diner', 'ciudad tacos', 'riverside grill', 'cape town corner', 'marine drive bites', 'central park cafe'];
       return !unwanted.includes(title.toLowerCase());
     });
 
