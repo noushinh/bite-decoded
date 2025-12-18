@@ -26,11 +26,3 @@ Design: SVG Icons, Google Fonts
 Hosting: Netlify
 
 Version Control: Git & GitHub
-
-
-
-Created by Noushin Haque
-www.linkedin.com/in/noushinhaque
-
-
-
