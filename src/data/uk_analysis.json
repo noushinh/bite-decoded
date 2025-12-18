@@ -1,0 +1,70 @@
+{
+  "country": "United Kingdom",
+  "totalItems": 152,
+  "categories": {
+    "Chicken": {
+      "itemCount": 28,
+      "avgCalories": 393.29,
+      "minCalories": 133,
+      "maxCalories": 869,
+      "avgProtein": 24.82,
+      "avgCarbs": 39.69,
+      "avgFat": 15.65,
+      "topItems": [
+        {"item": "20 Chicken McNuggets", "calories": 869, "protein": 50, "carbs": 68, "fat": 43},
+        {"item": "The Chicken Fiesta", "calories": 641, "protein": 31, "carbs": 69, "fat": 25},
+        {"item": "Crispy Chicken Italiano", "calories": 638, "protein": 31, "carbs": 70, "fat": 25},
+        {"item": "The Caesar & Bacon Chicken One (crispy)", "calories": 532, "protein": 32, "carbs": 38, "fat": 13},
+        {"item": "Chicken Big Mac", "calories": 529, "protein": 40, "carbs": 36, "fat": 40}
+      ]
+    },
+    "Breakfast": {
+      "itemCount": 14,
+      "avgCalories": 369.36,
+      "minCalories": 127,
+      "maxCalories": 612,
+      "avgProtein": 16.39,
+      "avgCarbs": 40.64,
+      "avgFat": 14.27,
+      "topItems": [
+        {"item": "Pancakes & Sausage with Syrup", "calories": 612, "protein": 20, "carbs": 96, "fat": 16},
+        {"item": "Double Sausage & Egg McMuffin", "calories": 551, "protein": 35, "carbs": 28, "fat": 32},
+        {"item": "Mighty McMuffin", "calories": 515, "protein": 35, "carbs": 31, "fat": 28},
+        {"item": "Breakfast Roll", "calories": 496, "protein": 31, "carbs": 42, "fat": 22},
+        {"item": "Pancakes & Syrup", "calories": 477, "protein": 10, "carbs": 95, "fat": 5.6}
+      ]
+    },
+    "Burger": {
+      "itemCount": 26,
+      "avgCalories": 471.38,
+      "minCalories": 250,
+      "maxCalories": 845,
+      "avgProtein": 27.64,
+      "avgCarbs": 39.15,
+      "avgFat": 23.09,
+      "topItems": [
+        {"item": "Big Tasty with Bacon", "calories": 845, "protein": 50, "carbs": 49, "fat": 46},
+        {"item": "Double Big Mac with Bacon", "calories": 740, "protein": 47, "carbs": 44, "fat": 41},
+        {"item": "Double Quarter Pounder with Cheese", "calories": 739, "protein": 53, "carbs": 37, "fat": 42},
+        {"item": "Grand Big Mac with Bacon", "calories": 739, "protein": 44, "carbs": 50, "fat": 39},
+        {"item": "Double Big Mac", "calories": 694, "protein": 43, "carbs": 43, "fat": 38}
+      ]
+    },
+    "Beverages": {
+      "itemCount": 29,
+      "avgCalories": 184.72,
+      "minCalories": 1,
+      "maxCalories": 672,
+      "avgProtein": 6.62,
+      "avgCarbs": 35.06,
+      "avgFat": 10.68,
+      "topItems": [
+        {"item": "Steakhous Stack", "calories": 672, "protein": 40, "carbs": 36, "fat": 40},
+        {"item": "Triple Chocolate Cookie", "calories": 320, "protein": 3.9, "carbs": 33, "fat": 13},
+        {"item": "Triple Chocolate Cookie", "calories": 320, "protein": 3.9, "carbs": 33, "fat": 13},
+        {"item": "Chocolate Brownie", "calories": 316, "protein": 3.6, "carbs": 33, "fat": 18},
+        {"item": "Chocolate Brownie", "calories": 316, "protein": 3.6, "carbs": 33, "fat": 18}
+      ]
+    }
+  }
+}
