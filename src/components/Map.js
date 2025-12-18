@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useNavigate } from 'react-router-dom';
 
 // (No dynamic loaders needed — Leaflet is imported from npm)
 
@@ -8,6 +9,7 @@ export default function Map({ locations = [], selectedLocation = null }) {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef(null);
+  const navigate = useNavigate();
 
     useEffect(() => {
       let cancelled = false;
@@ -33,30 +35,17 @@ export default function Map({ locations = [], selectedLocation = null }) {
 
         try {
           const map = L.map(container, { scrollWheelZoom: true }).setView([20, 0], 2);
-
-          // Use runtime Mapbox tiles when a token is injected (window.__MAPBOX_TOKEN__),
-          // otherwise fall back to CartoDB Positron tiles for development/offline.
-          const token = (typeof window !== 'undefined' && window.__MAPBOX_TOKEN__) ? String(window.__MAPBOX_TOKEN__).trim() : '';
-          const useMapbox = token && token !== 'REPLACE_WITH_MAPBOX_TOKEN';
-
-          if (useMapbox) {
-            // Mapbox Styles API raster tiles (light style)
-            const styleId = 'mapbox/light-v10';
-            L.tileLayer(`https://api.mapbox.com/styles/v1/${styleId}/tiles/{z}/{x}/{y}?access_token=${token}`, {
-              maxZoom: 19,
-              tileSize: 512,
-              zoomOffset: -1,
-              attribution: '© <a href="https://www.mapbox.com/about/maps">Mapbox</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            }).addTo(map);
-          } else {
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-              maxZoom: 19,
-              subdomains: 'abcd',
-              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            }).addTo(map);
-          }
+          // Use CartoDB Positron (light) tiles for a clean, soft basemap
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            subdomains: 'abcd',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          }).addTo(map);
 
           mapRef.current = map;
+
+          // layer group to hold markers so we can clear/recreate easily
+          markersRef.current = L.layerGroup().addTo(map);
 
           try { L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map); } catch (e) {}
 
@@ -115,14 +104,10 @@ export default function Map({ locations = [], selectedLocation = null }) {
           console.log('Leaflet initialized', { clientWidth, clientHeight });
           try { if (typeof window !== 'undefined') window.__LEAFLET_MAP__ = map; } catch(e){}
 
-          // markers layer group for dynamic markers from `locations`
-          try { markersRef.current = L.layerGroup().addTo(map); } catch (e) { markersRef.current = null; }
-
           return () => {
             try { window.removeEventListener('resize', onResize); } catch (e) {}
             clearTimeout(_t1); clearTimeout(_t2); clearTimeout(_t3); clearTimeout(_t4); clearTimeout(_t5);
             try { if (geoJsonLayer) map.removeLayer(geoJsonLayer); } catch (e) {}
-            try { if (markersRef.current) map.removeLayer(markersRef.current); } catch (e) {}
             try { map.remove(); } catch (e) {}
             mapRef.current = null;
           };
@@ -137,46 +122,89 @@ export default function Map({ locations = [], selectedLocation = null }) {
       return () => { cancelled = true; };
     }, []);
 
-    // Render markers from the `locations` prop and open popup for `selectedLocation` (id).
-    useEffect(() => {
-      const map = mapRef.current;
-      if (!map) return;
+  // Marker & popup effect: recreate markers whenever `locations` changes.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return undefined;
 
+    const layer = markersRef.current || L.layerGroup().addTo(map);
+    markersRef.current = layer;
+
+    // clear existing markers
+    layer.clearLayers();
+
+    const createdMarkers = [];
+
+    locations.forEach((loc) => {
       try {
-        if (!markersRef.current) markersRef.current = L.layerGroup().addTo(map);
-        markersRef.current.clearLayers();
+        const coords = loc.coordinates || loc.coord || loc.latlng || loc.latLng || [];
+        // support [lng, lat] or {lat, lng} objects
+        let lat, lng;
+        if (Array.isArray(coords) && coords.length >= 2) {
+          lng = coords[0];
+          lat = coords[1];
+        } else if (coords && typeof coords === 'object') {
+          lat = coords.lat || coords.latitude || coords[1];
+          lng = coords.lng || coords.longitude || coords[0];
+        }
+        if (typeof lat !== 'number' || typeof lng !== 'number') return;
 
-        (locations || []).forEach((loc) => {
+        const marker = L.marker([lat, lng]);
+
+        const popupId = `nav-btn-${loc.id}`;
+        const popupHtml = `
+          <div class="map-popup">
+            <strong>${loc.title || (loc.country || loc.id)}</strong>
+            <div style="margin-top:6px;font-size:0.9rem">${loc.description || ''}</div>
+            <div style="margin-top:8px">
+              <button id="${popupId}" style="background:#FFC72C;border:none;padding:8px 10px;cursor:pointer;border-radius:6px">\ud83d\udcca Menu Analysis</button>
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupHtml, { maxWidth: 320 });
+
+        marker.on('popupopen', () => {
+          // attach click handler to navigate when the popup button is clicked
           try {
-            const coords = loc.coordinates || loc.latlng || [];
-            let lat = null; let lng = null;
-            if (Array.isArray(coords) && coords.length >= 2) {
-              lng = Number(coords[0]);
-              lat = Number(coords[1]);
-            } else if (coords && typeof coords === 'object') {
-              lat = Number(coords.lat || coords.latitude || coords.y);
-              lng = Number(coords.lng || coords.lon || coords.longitude || coords.x);
+            const btn = document.getElementById(popupId);
+            if (btn) {
+              const handler = () => {
+                try { navigate(`/menu-analysis/${loc.id}`); } catch (e) { /* ignore */ }
+              };
+              btn.addEventListener('click', handler, { once: true });
             }
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-            const marker = L.marker([lat, lng]);
-            const title = loc.title || loc.name || '';
-            const desc = loc.description || '';
-            marker.bindPopup(`<div style="font-weight:700;margin-bottom:4px">${String(title)}</div><div style="font-size:12px;color:#333">${String(desc)}</div>`, { maxWidth: 320 });
-            marker.addTo(markersRef.current);
-            marker._locId = loc.id || loc.key || null;
-          } catch (err) {}
+          } catch (e) {}
         });
 
-        if (selectedLocation && markersRef.current) {
-          let found = null;
-          markersRef.current.eachLayer((layer) => {
-            if (!found && layer._locId && String(layer._locId) === String(selectedLocation)) found = layer;
-          });
-          if (found) { try { found.openPopup(); map.panTo(found.getLatLng()); } catch (e) {} }
-        }
-      } catch (err) {}
-    }, [locations, selectedLocation]);
+        marker.addTo(layer);
+        createdMarkers.push({ loc, marker });
+      } catch (e) {
+        // ignore marker creation errors per-location
+      }
+    });
+
+    // If a selectedLocation is present, open its popup and pan to it.
+    if (selectedLocation) {
+      const match = createdMarkers.find((m) => m.loc.id === selectedLocation.id || m.loc.id === selectedLocation);
+      if (match) {
+        try {
+          match.marker.openPopup();
+          map.panTo(match.marker.getLatLng(), { animate: true });
+        } catch (e) {}
+      }
+    }
+
+    // ensure size after adding markers
+    try { map.invalidateSize && map.invalidateSize(); } catch (e) {}
+
+    return () => {
+      try { layer.clearLayers(); } catch (e) {}
+    };
+  }, [locations, selectedLocation, navigate]);
+
+  // Note: previously markers and popups were intentionally removed per user request.
+  // The map will render tiles and the country-fill overlay; this effect re-adds markers/popups.
 
   return (
     // Render the map container as the direct child so flex sizing rules apply
