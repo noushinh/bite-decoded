@@ -378,6 +378,16 @@
   /* Ensure Mapbox canvas fills container */
   .map > canvas, .mapboxgl-canvas, .leaflet-container{ width:100% !important; height:100% !important; }
 
+  /* Custom marker styles used by the Map component */
+  .custom-marker-icon { pointer-events: auto; }
+  .custom-marker-icon .marker-img-wrap{ width:36px; height:36px; display:inline-block; border-radius:50%; overflow:hidden; box-shadow: 0 6px 14px rgba(12,12,20,0.12); border: 2px solid rgba(255,255,255,0.9); }
+  .custom-marker-icon .marker-img-wrap img{ width:36px; height:36px; object-fit:cover; display:block; }
+  .custom-marker-icon .marker-circle{ width:14px; height:14px; border-radius:50%; display:inline-block; box-shadow: 0 6px 14px rgba(12,12,20,0.12); border: 2px solid rgba(255,255,255,0.9); }
+
+  /* Popup content styling for consistency */
+  .leaflet-popup-content .map-popup{ font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#222; }
+  .leaflet-popup-content .map-popup strong{ display:block; margin-bottom:6px; font-weight:700; }
+
   /* Responsive: stack panels on narrow screens */
   @media (max-width:720px){
     .panels{ flex-direction:column; }

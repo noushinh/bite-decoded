@@ -149,7 +149,32 @@ export default function Map({ locations = [], selectedLocation = null }) {
         }
         if (typeof lat !== 'number' || typeof lng !== 'number') return;
 
-        const marker = L.marker([lat, lng]);
+        // choose an icon: prefer a brand image in /public/images, fallback to a colored circle
+        const detectBrand = (l) => {
+          if (!l) return null;
+          const cand = (l.brand || l.restaurant || l.source || l.provider || l.id || '').toString().toLowerCase();
+          if (!cand) return null;
+          if (cand.includes('mcd') || cand.includes('mc')) return 'mcd';
+          if (cand.includes('burger') || cand.includes('bk')) return 'bk';
+          if (cand.includes('kfc')) return 'kfc';
+          if (cand.includes('wend')) return 'wendys';
+          return null;
+        };
+
+        const brand = detectBrand(loc);
+        let icon = null;
+        if (brand) {
+          const src = `${(process.env.PUBLIC_URL || '')}/images/${brand}.png`;
+          const html = `<div class="marker-img-wrap"><img src="${src}" alt="${brand}" /></div>`;
+          icon = L.divIcon({ className: 'custom-marker-icon', html, iconSize: [36, 36], iconAnchor: [18, 36] });
+        } else {
+          // simple colored circle fallback
+          const color = '#ff6b6b';
+          const html = `<div class="marker-circle" style="background:${color}"></div>`;
+          icon = L.divIcon({ className: 'custom-marker-icon', html, iconSize: [16, 16], iconAnchor: [8, 8] });
+        }
+
+        const marker = L.marker([lat, lng], { icon });
 
         const popupId = `nav-btn-${loc.id}`;
         const popupHtml = `
